@@ -11,26 +11,71 @@ private:
     };
     Node<T> *front;
     std::size_t size;
-
-public:
-    LinkedList() : front(nullptr), size(0){};
-    ~LinkedList()
+    void copy(const LinkedList<T> &other)
+    {
+        if (other.size > 0)
+        {
+            this->front = new Node<T>(other.front->key);
+            int i = other.size;
+            Node<T> *Current = this->front;
+            Node<T> *Other = other.front->next;
+            while (--i)
+            {
+                Current->next = new Node<T>(Other->key);
+                Current = Current->next;
+                Other = Other->next;
+            }
+            this->size = other.size;
+        }
+    }
+    void erase()
     {
         while (front)
         {
             Node<T> *temp = front;
+            std::cout << "del: " << front->key << std::endl;
             front = front->next;
             delete temp;
             size--;
         }
     }
-    LinkedList(const LinkedList<T> &other){};
-    bool operator==(const LinkedList<T> &other) const
+
+public:
+    LinkedList() : front(nullptr), size(0){};
+    ~LinkedList()
     {
-        return *this;
+        this->erase();
+    }
+    LinkedList(const LinkedList<T> &other)
+    {
+        this->copy(other);
+    };
+    bool operator==(const LinkedList<T> &other) const
+    {   
+        if (this->size == other.size)
+        {   Node<T>* This=this->front;
+            Node<T>* Other=other.front;
+            for (int i = 0; i < this->size; i++)
+            {
+                if (This->key!=Other->key)
+                {
+                    return 0;
+                }
+                This=This->next;
+                Other=Other->next;
+            }
+            return 1;
+        }
+        return 0;
     }
     LinkedList<T> &operator=(const LinkedList<T> &other)
     {
+        if (this != &other)
+        {
+            this->erase();
+            this->copy(other);
+        }
+        return *this;
     }
     std::size_t getSize()
     {
@@ -47,7 +92,7 @@ public:
         }
     }
     const T &getElementAtPos(unsigned pos)
-    { 
+    {
         Node<T> *current = front;
         while (pos--)
         {
@@ -101,11 +146,10 @@ public:
             {
                 newNode = newNode->next;
             }
-            Node<T>* temp = newNode->next;
+            Node<T> *temp = newNode->next;
             newNode->next = temp->next;
             delete temp;
         }
         size--;
     }
-
 };
